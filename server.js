@@ -6,7 +6,7 @@ let app = express()
 
 let redirect_uri = 
   process.env.REDIRECT_URI || 
-  'localhost:3000'
+  'https://mod3backend.herokuapp.com/callback'
 
 app.get('/login', function(req, res) {
   res.redirect('https://accounts.spotify.com/authorize?' +
