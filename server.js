@@ -56,7 +56,7 @@ let getVenue = (connectCode) => {
   }
 }
 
-app.get('/create', function(req, res) {
+app.post('/create', function(req, res) {
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
   venues.push({
     "connectCode" : newConnectCode, // add a speacial code just for the host?
@@ -73,8 +73,14 @@ app.get('/join', function(req, res) {
   res.send(venue ? "Connected to: " + venue.name : "Could not connect")
 })
 
-app.get('/vote', function(req, res) { // TODO: use "post"
-  let queue = getVenue(req.body.connectCode).queue
+app.put('/vote', function(req, res) {
+  if (getVenue(req.body.connectCode)) {
+    var queue = getVenue(req.body.connectCode).queue
+  } else {
+    res.sendStatus(400)
+    return;
+  }
+  
   // check if the song is already in the playlist
   let alreadyInQueue = false
   for(i=0; i<queue.length; i++) {
@@ -93,7 +99,12 @@ app.get('/vote', function(req, res) { // TODO: use "post"
 })
 
 app.get('/queue', function(req, res) {
-  res.send(getVenue(req.body.connectCode).queue)
+  if (getVenue(req.query.connectCode)) {
+    res.send(getVenue(req.query.connectCode).queue)
+  } else {
+    res.sendStatus(400)
+    return
+  }
 })
 
 let port = process.env.PORT || 8888
