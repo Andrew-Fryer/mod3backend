@@ -59,7 +59,7 @@ let getVenue = (connectCode) => {
 app.get('/create', function(req, res) {
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
   venues.push({
-    "connectCode" : newConnectCode,
+    "connectCode" : newConnectCode, // add a speacial code just for the host?
     "name" : req.body.name,
     "queue" : []
   })
