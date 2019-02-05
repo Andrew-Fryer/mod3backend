@@ -69,7 +69,7 @@ app.post('/create', function(req, res) {
 })
 
 app.get('/join', function(req, res) {
-  let venue = getVenue(req.body.connectCode)
+  let venue = getVenue(req.query.connectCode)
   res.send(venue ? "Connected to: " + venue.name : "Could not connect")
 })
 
