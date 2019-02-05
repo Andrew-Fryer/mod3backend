@@ -16,7 +16,7 @@ app.get('/login', function(req, res) {
     querystring.stringify({
       response_type: 'code',
       client_id: process.env.SPOTIFY_CLIENT_ID,
-      scope: 'user-read-private user-read-email', // this is where I need to add more permissions!
+      scope: 'user-read-private user-read-email user-modify-playback-state app-remote-control streaming', // this is where I need to add more permissions!
       redirect_uri
     }))
 })
