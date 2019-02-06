@@ -5,7 +5,7 @@ const body_parser = require('body-parser')
 const cors = require('cors')
 
 let app = express()
-app.use(body_parser.urlencoded({extended: false}))
+//app.use(body_parser.urlencoded({extended: false}))
 app.use(body_parser.json())
 app.use(cors({
   'allowedHeaders': ['sessionId', 'Content-Type'],
@@ -15,6 +15,7 @@ app.use(cors({
   'preflightContinue': false
 }))
 
+console.log(process.env);
 let redirect_uri = 
   process.env.REDIRECT_URI || 
   'https://mod3backend.herokuapp.com/callback'
@@ -47,7 +48,7 @@ app.get('/callback', function(req, res) {
   }
   request.post(authOptions, function(error, response, body) {
     var access_token = body.access_token
-    let uri = process.env.FRONTEND_URI || 'https://mod3frontend.herokuapp.com/'
+    let uri = process.env.FRONT_END_URI || 'https://mod3frontend.herokuapp.com/'
     res.redirect(uri + '?access_token=' + access_token)
   })
 })
@@ -65,6 +66,7 @@ let getVenue = (connectCode) => {
 }
 
 app.post('/create', function(req, res) {
+  console.log(req.body)
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
   venues.push({
     "connectCode" : newConnectCode, // add a speacial code just for the host?
@@ -77,11 +79,13 @@ app.post('/create', function(req, res) {
 })
 
 app.get('/join', function(req, res) {
+  console.log(req.query)
   let venue = getVenue(req.query.connectCode)
   res.send(venue ? "Connected to: " + venue.name : "Could not connect")
 })
 
 app.put('/vote', function(req, res) {
+  console.log(req.body)
   if (getVenue(req.body.connectCode)) {
     var queue = getVenue(req.body.connectCode).queue
   } else {
@@ -107,6 +111,7 @@ app.put('/vote', function(req, res) {
 })
 
 app.get('/queue', function(req, res) {
+  console.log(req.query)
   if (getVenue(req.query.connectCode)) {
     res.send(getVenue(req.query.connectCode).queue)
   } else {
