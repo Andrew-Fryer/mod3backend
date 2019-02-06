@@ -63,7 +63,7 @@ app.post('/create', function(req, res) {
     "name" : req.body.name,
     "queue" : []
   })
-  res.send({newConnectCode})
+  res.send({"newConnectCode" : newConnectCode})
   connectCodeCounter += 1
   console.log(venues)
 })
