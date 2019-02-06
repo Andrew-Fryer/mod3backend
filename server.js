@@ -2,10 +2,18 @@ const express = require('express')
 const request = require('request')
 const querystring = require('querystring')
 const body_parser = require('body-parser')
+const cors = require('cors')
 
 let app = express()
 app.use(body_parser.urlencoded({extended: false}))
 app.use(body_parser.json())
+app.use(cors({
+  'allowedHeaders': ['sessionId', 'Content-Type'],
+  'exposedHeaders': ['sessionId'],
+  'origin': '*',
+  'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  'preflightContinue': false
+}))
 
 let redirect_uri = 
   process.env.REDIRECT_URI || 
