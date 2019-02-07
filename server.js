@@ -5,7 +5,6 @@ const body_parser = require('body-parser')
 const cors = require('cors')
 
 let app = express()
-//app.use(body_parser.urlencoded({extended: false}))
 app.use(body_parser.json())
 app.use(cors({
   'allowedHeaders': ['sessionId', 'Content-Type'],
@@ -75,7 +74,7 @@ app.post('/create', function(req, res) {
   })
   res.send({"newConnectCode" : newConnectCode})
   connectCodeCounter += 1
-  console.log(venues)
+  console.log(JSON.stringify(venues))
 })
 
 app.get('/join', function(req, res) {
