@@ -80,7 +80,7 @@ app.post('/create', function(req, res) {
 app.get('/join', function(req, res) {
   console.log(req.query)
   let venue = getVenue(req.query.connectCode)
-  res.send(venue ? "Connected to: " + venue.name : "Could not connect")
+  res.send(venue ? venue.name : "Could not connect")
 })
 
 app.put('/vote', function(req, res) {
