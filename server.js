@@ -68,7 +68,7 @@ app.post('/create', function(req, res) {
   console.log(req.body)
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
   venues.push({
-    "connectCode" : newConnectCode, // add a speacial code just for the host?
+    "connectCode" : newConnectCode, // add a speacial code just for the host? -> they can mark what has been played
     "name" : req.body.name,
     "queue" : []
   })
@@ -102,6 +102,7 @@ app.put('/vote', function(req, res) {
   }
   if(!alreadyInQueue) {
     queue.push({
+      "name" : req.body.songName,
       "url" : req.body.songUrl,
       "numVotes" : 0
     })
