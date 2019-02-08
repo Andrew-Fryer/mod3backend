@@ -111,8 +111,9 @@ app.put('/vote', function(req, res) {
   }
   if(!alreadyInQueue) {
     queue.push({
-      "name" : req.body.songName,
-      "url" : req.body.songUrl,
+      "name" : req.body.songName,  // just attach the song object from Spotify?
+      "url" : req.body.songUrl,  // validate url first?
+      "duration" : req.body.duration,
       "numVotes" : 0,
       "wasPlayed" : false
     })
