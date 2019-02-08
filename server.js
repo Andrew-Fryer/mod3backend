@@ -69,7 +69,7 @@ app.post('/create', function(req, res) {
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
   let newHostCode = Math.random().toString().slice(2, 6)
   venues.push({
-    "connectCode" : newConnectCode, // add a speacial code just for the host? -> they can mark what has been played
+    "connectCode" : newConnectCode,
     "hostCode" : newHostCode,
     "name" : req.body.name,
     "queue" : []
@@ -109,10 +109,30 @@ app.put('/vote', function(req, res) {
     queue.push({
       "name" : req.body.songName,
       "url" : req.body.songUrl,
-      "numVotes" : 0
+      "numVotes" : 0,
+      "wasPlayed" : false
     })
   }
   res.sendStatus(200)
+})
+
+app.put('/setPlayed', function(req, res) {
+  console.log(req.body)
+  if (getVenue(req.body.connectCode) && getVenue(req.body.connectCode).hostCode == req.body.hostCode) {
+    var queue = getVenue(req.body.connectCode).queue
+  } else {
+    res.sendStatus(400)
+    return;
+  }
+  
+  let foundSong = false
+  for(i=0; i<queue.length; i++) {
+    if(queue[i].url == req.body.songUrl) {
+      queue[i].wasPlayed = true
+      foundSong = true
+    }
+  }
+  res.sendStatus(foundSong ? 200 : 400)
 })
 
 app.get('/queue', function(req, res) {
