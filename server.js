@@ -67,12 +67,17 @@ let getVenue = (connectCode) => {
 app.post('/create', function(req, res) {
   console.log(req.body)
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
+  let newHostCode = Math.random().toString().slice(2, 6)
   venues.push({
     "connectCode" : newConnectCode, // add a speacial code just for the host? -> they can mark what has been played
+    "hostCode" : newHostCode,
     "name" : req.body.name,
     "queue" : []
   })
-  res.send({"newConnectCode" : newConnectCode})
+  res.send({
+    "newConnectCode" : newConnectCode,
+    "newHostCode" : newHostCode
+  })
   connectCodeCounter += 1
   console.log(JSON.stringify(venues))
 })
