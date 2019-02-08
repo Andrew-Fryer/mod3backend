@@ -85,7 +85,11 @@ app.post('/create', function(req, res) {
 app.get('/join', function(req, res) {
   console.log(req.query)
   let venue = getVenue(req.query.connectCode)
-  res.send(venue ? venue.name : "Could not connect")
+  if(venue) {
+    res.status(200).send({venueName : venue.name})
+  } else {
+    res.sendStatus(400)
+  }
 })
 
 app.put('/vote', function(req, res) {
