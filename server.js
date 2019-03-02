@@ -14,7 +14,7 @@ app.use(cors({
   'preflightContinue': false
 }))
 
-console.log(process.env);
+//console.log(process.env);
 let redirect_uri = 
   process.env.REDIRECT_URI || 
   'https://mod3backend.herokuapp.com/callback'
@@ -80,7 +80,7 @@ app.post('/create', function(req, res) {
     "newHostCode" : newHostCode
   })
   connectCodeCounter += 1
-  console.log(JSON.stringify(venues))
+  //console.log(JSON.stringify(venues))
 })
 
 app.get('/join', function(req, res) {
@@ -94,7 +94,7 @@ app.get('/join', function(req, res) {
 })
 
 app.put('/vote', function(req, res) {
-  console.log(req.body)
+  console.log("voting: " + req.body.track.name)
   if (getVenue(req.body.connectCode)) {
     var queue = getVenue(req.body.connectCode).queue
   } else {
@@ -103,27 +103,24 @@ app.put('/vote', function(req, res) {
   }
   
   // check if the song is already in the playlist
+  let track = req.body.track
   let alreadyInQueue = false
   for(i=0; i<queue.length; i++) {
-    if(queue[i].url == req.body.songUrl) {
+    if(queue[i].uri == track.uri) {
       queue[i].numVotes++ // TODO: prevent one user from voting multiple times
       alreadyInQueue = true
     }
   }
   if(!alreadyInQueue) {
-    queue.push({
-      "name" : req.body.songName,  // just attach the song object from Spotify?
-      "url" : req.body.songUrl,  // validate url first?
-      "duration" : req.body.duration,
-      "numVotes" : 0,
-      "wasPlayed" : false
-    })
+    track.numVotes = 0
+    track.wasPlayed = false
+    queue.push(track)
   }
   res.sendStatus(200)
 })
 
 app.put('/setPlayed', function(req, res) {
-  console.log(req.body)
+  console.log(req.body.track.name + " has now been played")
   if (getVenue(req.body.connectCode) && getVenue(req.body.connectCode).hostCode == req.body.hostCode) {
     var queue = getVenue(req.body.connectCode).queue
   } else {
@@ -133,7 +130,7 @@ app.put('/setPlayed', function(req, res) {
   
   let foundSong = false
   for(i=0; i<queue.length; i++) {
-    if(queue[i].url == req.body.songUrl) {
+    if(queue[i].uri == req.body.track.uri) {
       queue[i].wasPlayed = true
       foundSong = true
     }
