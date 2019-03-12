@@ -22,16 +22,18 @@ app.use(cors({
   'preflightContinue': false
 }))
 
-const io = socket.listen(server) //(http.Server(app))
+const io = socket.listen(server)
 io.on('connection', socket => {
   console.log("a user has connected")
-  socket.on('getQueue' , connectCode => {
-    console.log("right here now")
-    let venue = getVenue(connectCode)
-    io.emit('getQueue', (venue ? venue.queue : "invalid connectCode"))
-  })
-  socket.on('dosconnect', () => {
+  socket.on('disconnect', () => {
     console.log("user disconnected")
+  })
+  socket.on('joinVenue', connectCode => {
+    socket.join(connectCode)
+    io.to(connectCode).emit('updatedQueue', getVenue(connectCode).queue)
+  })
+  socket.on('leave', connectCode => {
+    socket.leave(connectCode)
   })
 })
 
@@ -161,6 +163,7 @@ app.put('/vote', function(req, res) {
       votingHistory[userData.id].push(track)
     }
     if(!alreadyVoted) {
+      io.to(req.body.connectCode).emit('updatedQueue', queue) // send updated queue to the room
       res.sendStatus(200)
     } else {
       res.status(400).send("user has already vote for: " + track.name)
