@@ -4,8 +4,15 @@ const querystring = require('querystring')
 const body_parser = require('body-parser')
 const cors = require('cors')
 const fetch = require('node-fetch')
+const http = require('http')
+const socket = require('socket.io')
 
-let app = express()
+const app = express()
+
+let port = process.env.PORT || 8888
+console.log(`Listening on port ${port}. Go /login to initiate authentication flow.`)
+let server = app.listen(port)
+
 app.use(body_parser.json())
 app.use(cors({
   'allowedHeaders': ['sessionId', 'Content-Type'],
@@ -14,6 +21,19 @@ app.use(cors({
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false
 }))
+
+const io = socket.listen(server) //(http.Server(app))
+io.on('connection', socket => {
+  console.log("a user has connected")
+  socket.on('getQueue' , connectCode => {
+    console.log("right here now")
+    let venue = getVenue(connectCode)
+    io.emit('getQueue', (venue ? venue.queue : "invalid connectCode"))
+  })
+  socket.on('dosconnect', () => {
+    console.log("user disconnected")
+  })
+})
 
 //console.log(process.env);
 let redirect_uri = 
@@ -169,14 +189,11 @@ app.put('/setPlayed', function(req, res) {
 
 app.get('/queue', function(req, res) {
   console.log(req.query)
-  if (getVenue(req.query.connectCode)) {
-    res.send(getVenue(req.query.connectCode).queue)
+  let venue = getVenue(req.query.connectCode)
+  if (venue) {
+    res.send(venue.queue)
   } else {
     res.sendStatus(400)
     return
   }
 })
-
-let port = process.env.PORT || 8888
-console.log(`Listening on port ${port}. Go /login to initiate authentication flow.`)
-app.listen(port)
