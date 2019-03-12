@@ -3,6 +3,7 @@ const request = require('request')
 const querystring = require('querystring')
 const body_parser = require('body-parser')
 const cors = require('cors')
+const fetch = require('node-fetch')
 
 let app = express()
 app.use(body_parser.json())
@@ -73,7 +74,8 @@ app.post('/create', function(req, res) {
     "connectCode" : newConnectCode,
     "hostCode" : newHostCode,
     "name" : req.body.name,
-    "queue" : []
+    "queue" : [],
+    "votingHistory" : {}
   })
   res.send({
     "newConnectCode" : newConnectCode,
@@ -95,28 +97,55 @@ app.get('/join', function(req, res) {
 
 app.put('/vote', function(req, res) {
   console.log("voting: " + req.body.track.name)
-  if (getVenue(req.body.connectCode)) {
-    var queue = getVenue(req.body.connectCode).queue
-  } else {
-    res.sendStatus(400)
+  let venue = getVenue(req.body.connectCode)
+  if(!venue) {
+    res.status(400).send("invalid connectCode")
     return;
   }
-  
-  // check if the song is already in the playlist
+
+  let queue = venue.queue
+  let votingHistory = venue.votingHistory
+  let token = req.access_token
   let track = req.body.track
-  let alreadyInQueue = false
-  for(i=0; i<queue.length; i++) {
-    if(queue[i].uri == track.uri) {
-      queue[i].numVotes++ // TODO: prevent one user from voting multiple times
-      alreadyInQueue = true
+  fetch('https://api.spotify.com/v1/me', {
+    headers: {'Authorization': 'Bearer ' + token}
+  })
+  .then(response => response.json())
+  .then(userData => {
+    // init voting history
+    if(!votingHistory[userData.id]) {
+      votingHistory[userData.id] = []
     }
-  }
-  if(!alreadyInQueue) {
-    track.numVotes = 0
-    track.wasPlayed = false
-    queue.push(track)
-  }
-  res.sendStatus(200)
+    let pastTracks = votingHistory[userData.id]
+    let alreadyVoted = false
+    // check if the song is already in the playlist
+    let alreadyInQueue = false
+    for(i=0; i<queue.length; i++) {
+      if(queue[i].uri === track.uri) {
+        alreadyInQueue = true
+        // check that the user hasn't voted for this track on this venue
+        pastTracks.forEach(pastTrack => {
+          if(pastTrack.uri === track.uri) {
+            alreadyVoted = true
+          } else {
+            queue[i].numVotes++
+            votingHistory[userData.id].push(track)
+          }
+        })
+      }
+    }
+    if(!alreadyInQueue) {
+      track.numVotes = 0
+      track.wasPlayed = false
+      queue.push(track)
+      votingHistory[userData.id].push(track)
+    }
+    if(!alreadyVoted) {
+      res.sendStatus(200)
+    } else {
+      res.status(400).send("user has already vote for: " + track.name)
+    }
+  })
 })
 
 app.put('/setPlayed', function(req, res) {
