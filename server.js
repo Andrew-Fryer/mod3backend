@@ -194,6 +194,7 @@ app.put('/setPlayed', function(req, res) {
     if(queue[i].uri == req.body.track.uri) {
       queue[i].wasPlayed = true
       foundSong = true
+      io.to(req.body.connectCode).emit('updatedQueue', queue)
     }
   }
   res.sendStatus(foundSong ? 200 : 400)
