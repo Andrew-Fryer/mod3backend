@@ -91,7 +91,7 @@ let getVenue = (connectCode) => {
 app.post('/create', function(req, res) {
   console.log(req.body)
   let newConnectCode = connectCodeCounter.toString() + Math.random().toString().slice(2, 6)
-  let newHostCode = Math.random().toString().slice(2, 6)
+  let newHostCode = Math.random().toString().slice(2, 100)
   venues.push({
     "connectCode" : newConnectCode,
     "hostCode" : newHostCode,
