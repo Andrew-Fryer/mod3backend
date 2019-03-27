@@ -97,7 +97,8 @@ app.post('/create', function(req, res) {
     "hostCode" : newHostCode,
     "name" : req.body.name,
     "queue" : [],
-    "votingHistory" : {}
+    "votingHistory" : {},
+    "guests" : []
   })
   res.send({
     "newConnectCode" : newConnectCode,
@@ -127,6 +128,7 @@ app.put('/vote', function(req, res) {
 
   let queue = venue.queue
   let votingHistory = venue.votingHistory
+  let guests = venue.guests
   let token = req.access_token
   let track = req.body.track
   fetch('https://api.spotify.com/v1/me', {
@@ -142,6 +144,7 @@ app.put('/vote', function(req, res) {
     // init voting history
     if(!votingHistory[userData.id]) {
       votingHistory[userData.id] = []
+      guests.push(userData)
     }
     let pastTracks = votingHistory[userData.id]
     let alreadyVoted = false
