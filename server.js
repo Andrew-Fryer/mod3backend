@@ -129,7 +129,7 @@ app.put('/vote', function(req, res) {
   let queue = venue.queue
   let votingHistory = venue.votingHistory
   let guests = venue.guests
-  let token = req.access_token
+  let token = req.body.access_token
   let track = req.body.track
   fetch('https://api.spotify.com/v1/me', {
     headers: {'Authorization': 'Bearer ' + token}
