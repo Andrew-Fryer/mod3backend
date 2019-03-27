@@ -134,6 +134,11 @@ app.put('/vote', function(req, res) {
   })
   .then(response => response.json())
   .then(userData => {
+    // hopefully prevent people voting when not logged in
+    if(!userData || !userData.id) {
+      res.status(400).send("invalid access token")
+      return;
+    }
     // init voting history
     if(!votingHistory[userData.id]) {
       votingHistory[userData.id] = []
