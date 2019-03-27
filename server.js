@@ -157,7 +157,7 @@ app.put('/vote', function(req, res) {
       }
     }
     if(!alreadyInQueue) {
-      track.numVotes = 0
+      track.numVotes = 1;
       track.wasPlayed = false
       queue.push(track)
       votingHistory[userData.id].push(track)
