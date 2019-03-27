@@ -157,11 +157,12 @@ app.put('/vote', function(req, res) {
         pastTracks.forEach(pastTrack => {
           if(pastTrack.uri === track.uri) {
             alreadyVoted = true
-          } else {
-            queue[i].numVotes++
-            votingHistory[userData.id].push(track)
           }
         })
+        if(!alreadyVoted) {
+          queue[i].numVotes++
+          votingHistory[userData.id].push(track)
+        }
       }
     }
     if(!alreadyInQueue) {
