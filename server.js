@@ -30,7 +30,8 @@ io.on('connection', socket => {
   })
   socket.on('joinVenue', connectCode => {
     socket.join(connectCode)
-    io.to(connectCode).emit('updatedQueue', getVenue(connectCode).queue)
+    let venue = getVenue(connectCode)
+    io.to(connectCode).emit('updatedQueue', {"queue" : venue.queue, "current_track" : venue.current_track})
   })
   socket.on('leave', connectCode => {
     socket.leave(connectCode)
@@ -98,7 +99,8 @@ app.post('/create', function(req, res) {
     "name" : req.body.name,
     "queue" : [],
     "votingHistory" : {},
-    "guests" : []
+    "guests" : [],
+    "current_track" : undefined
   })
   res.send({
     "newConnectCode" : newConnectCode,
@@ -172,7 +174,7 @@ app.put('/vote', function(req, res) {
       votingHistory[userData.id].push(track)
     }
     if(!alreadyVoted) {
-      io.to(req.body.connectCode).emit('updatedQueue', queue) // send updated queue to the room
+      io.to(req.body.connectCode).emit('updatedQueue', {"queue" : queue, "current_track" : venue.current_track}) // send updated queue to the room
       res.sendStatus(200)
     } else {
       res.status(400).send("user has already vote for: " + track.name)
@@ -183,7 +185,8 @@ app.put('/vote', function(req, res) {
 app.put('/setPlayed', function(req, res) {
   console.log(req.body.track.name + " has now been played")
   if (getVenue(req.body.connectCode) && getVenue(req.body.connectCode).hostCode == req.body.hostCode) {
-    var queue = getVenue(req.body.connectCode).queue
+    var venue = getVenue(req.body.connectCode)
+    var queue = venue.queue
   } else {
     res.sendStatus(400)
     return;
@@ -193,8 +196,9 @@ app.put('/setPlayed', function(req, res) {
   for(i=0; i<queue.length; i++) {
     if(queue[i].uri == req.body.track.uri) {
       queue[i].wasPlayed = true
+      venue.current_track = req.body.track
       foundSong = true
-      io.to(req.body.connectCode).emit('updatedQueue', queue)
+      io.to(req.body.connectCode).emit('updatedQueue', {"queue" : queue, "current_track" : venue.current_track})
     }
   }
   res.sendStatus(foundSong ? 200 : 400)
