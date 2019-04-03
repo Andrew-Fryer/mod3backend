@@ -191,17 +191,19 @@ app.put('/setPlayed', function(req, res) {
     res.sendStatus(400)
     return;
   }
+
+  // set the current track of the venue to be this track that was just started
+  venue.current_track = req.body.track
   
   let foundSong = false
   for(i=0; i<queue.length; i++) {
     if(queue[i].uri == req.body.track.uri) {
       queue[i].wasPlayed = true
-      venue.current_track = req.body.track
       foundSong = true
       io.to(req.body.connectCode).emit('updatedQueue', {"queue" : queue, "current_track" : venue.current_track})
     }
   }
-  res.sendStatus(foundSong ? 200 : 400)
+  res.sendStatus(foundSong ? 200 : 202)
 })
 
 app.get('/queue', function(req, res) {
